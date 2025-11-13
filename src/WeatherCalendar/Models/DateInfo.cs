@@ -1,196 +1,213 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using Splat;
 using System;
 using System.Reactive.Linq;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using Splat;
 using WeatherCalendar.Services;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
 
 namespace WeatherCalendar.Models;
 
-public class DateInfo : ReactiveObject
+public partial class DateInfo : ReactiveBase
 {
     /// <summary>
-    /// 公历日期
+    ///     公历日期
     /// </summary>
     [Reactive]
-    public DateTime Date { get; set; }
+    public partial DateTime Date { get; set; }
 
     /// <summary>
-    /// 干支年（正月）
+    ///     干支年（正月）
     /// </summary>
     [ObservableAsProperty]
-    public string StemsAndBranchesYearNameOfFirstMonth { get; }
+    public partial string StemsAndBranchesYearNameOfFirstMonth { get; }
 
     /// <summary>
-    /// 干支年（立春）
+    ///     干支年（立春）
     /// </summary>
     [ObservableAsProperty]
-    public string StemsAndBranchesYearNameOfSpringBegins { get; }
+    public partial string StemsAndBranchesYearNameOfSpringBegins { get; }
 
     /// <summary>
-    /// 生肖（正月）
+    ///     生肖（正月）
     /// </summary>
     [ObservableAsProperty]
-    public string ChineseZodiacOfFirstMonth { get; }
+    public partial string ChineseZodiacOfFirstMonth { get; }
 
     /// <summary>
-    /// 生肖（立春）
+    ///     生肖（立春）
     /// </summary>
     [ObservableAsProperty]
-    public string ChineseZodiacOfSpringBegins { get; }
+    public partial string ChineseZodiacOfSpringBegins { get; }
 
     /// <summary>
-    /// 农历月
+    ///     农历月
     /// </summary>
     [ObservableAsProperty]
-    public string LunarMonthName { get; }
+    public partial string LunarMonthName { get; }
 
     /// <summary>
-    /// 干支月
+    ///     干支月
     /// </summary>
     [ObservableAsProperty]
-    public string StemsAndBranchesMonthName { get; }
+    public partial string StemsAndBranchesMonthName { get; }
 
     /// <summary>
-    /// 农历闰月（‘闰’或空）
+    ///     农历闰月（‘闰’或空）
     /// </summary>
     [ObservableAsProperty]
-    public string LunarLeapMonthFlag { get; }
+    public partial string LunarLeapMonthFlag { get; }
 
     /// <summary>
-    /// 农历月大小
+    ///     农历月大小
     /// </summary>
     [ObservableAsProperty]
-    public string LunarMonthSizeFlag { get; }
+    public partial string LunarMonthSizeFlag { get; }
 
     /// <summary>
-    /// 农历月信息
+    ///     农历月信息
     /// </summary>
     [ObservableAsProperty]
-    public string LunarMonthInfo { get; }
+    public partial string LunarMonthInfo { get; }
 
     /// <summary>
-    /// 农历日
+    ///     农历日
     /// </summary>
     [ObservableAsProperty]
-    public string LunarDayName { get; }
+    public partial string LunarDayName { get; }
 
     /// <summary>
-    /// 干支日
+    ///     干支日
     /// </summary>
     [ObservableAsProperty]
-    public string StemsAndBranchesDayName { get; }
+    public partial string StemsAndBranchesDayName { get; }
 
     /// <summary>
-    /// 节气
+    ///     节气
     /// </summary>
     [ObservableAsProperty]
-    public string SolarTerm { get; }
+    public partial string SolarTerm { get; }
 
     /// <summary>
-    /// 三九或三伏
+    ///     三九或三伏
     /// </summary>
     [ObservableAsProperty]
-    public string ShuJiuOrDogDays { get; }
+    public partial string ShuJiuOrDogDays { get; }
 
     /// <summary>
-    /// 数九详情
+    ///     数九详情
     /// </summary>
     [ObservableAsProperty]
-    public string ShuJiuDetail { get; }
+    public partial string ShuJiuDetail { get; }
 
     /// <summary>
-    /// 三伏详情
+    ///     三伏详情
     /// </summary>
     [ObservableAsProperty]
-    public string DogDaysDetail { get; }
+    public partial string DogDaysDetail { get; }
 
     /// <summary>
-    /// 中国节假日
+    ///     中国节假日
     /// </summary>
     [ObservableAsProperty]
-    public string ChineseFestival { get; }
+    public partial string ChineseFestival { get; }
 
     /// <summary>
-    /// 节假日
+    ///     节假日
     /// </summary>
     [ObservableAsProperty]
-    public string Festival { get; }
+    public partial string Festival { get; }
 
     public DateInfo()
     {
         var calendarService = Locator.Current.GetService<CalendarService>();
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetStemsAndBranchesYearNameOfFirstMonth)
-            .ToPropertyEx(this, info => info.StemsAndBranchesYearNameOfFirstMonth);
+        _stemsAndBranchesYearNameOfFirstMonthHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetStemsAndBranchesYearNameOfFirstMonth)
+                .ToProperty(this, info => info.StemsAndBranchesYearNameOfFirstMonth);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetStemsAndBranchesYearNameOfSpringBegins)
-            .ToPropertyEx(this, info => info.StemsAndBranchesYearNameOfSpringBegins);
+        _stemsAndBranchesYearNameOfSpringBeginsHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetStemsAndBranchesYearNameOfSpringBegins)
+                .ToProperty(this, info => info.StemsAndBranchesYearNameOfSpringBegins);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetChineseZodiacOfFirstMonth)
-            .ToPropertyEx(this, info => info.ChineseZodiacOfFirstMonth);
+        _chineseZodiacOfFirstMonthHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetChineseZodiacOfFirstMonth)
+                .ToProperty(this, info => info.ChineseZodiacOfFirstMonth);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetChineseZodiacOfSpringBegins)
-            .ToPropertyEx(this, info => info.ChineseZodiacOfSpringBegins);
+        _chineseZodiacOfSpringBeginsHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetChineseZodiacOfSpringBegins)
+                .ToProperty(this, info => info.ChineseZodiacOfSpringBegins);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetLunarMonthName)
-            .ToPropertyEx(this, info => info.LunarMonthName);
+        _lunarMonthNameHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetLunarMonthName)
+                .ToProperty(this, info => info.LunarMonthName);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetStemsAndBranchesMonthName)
-            .ToPropertyEx(this, info => info.StemsAndBranchesMonthName);
+        _stemsAndBranchesMonthNameHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetStemsAndBranchesMonthName)
+                .ToProperty(this, info => info.StemsAndBranchesMonthName);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetLunarLeapMonthFlag)
-            .ToPropertyEx(this, info => info.LunarLeapMonthFlag);
+        _lunarLeapMonthFlagHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetLunarLeapMonthFlag)
+                .ToProperty(this, info => info.LunarLeapMonthFlag);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetLunarMonthSizeFlag)
-            .ToPropertyEx(this, info => info.LunarMonthSizeFlag);
+        _lunarMonthSizeFlagHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetLunarMonthSizeFlag)
+                .ToProperty(this, info => info.LunarMonthSizeFlag);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetLunarMonthInfo)
-            .ToPropertyEx(this, info => info.LunarMonthInfo);
+        _lunarMonthInfoHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetLunarMonthInfo)
+                .ToProperty(this, info => info.LunarMonthInfo);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetLunarDayName)
-            .ToPropertyEx(this, info => info.LunarDayName);
+        _lunarDayNameHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetLunarDayName)
+                .ToProperty(this, info => info.LunarDayName);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetStemsAndBranchesDayName)
-            .ToPropertyEx(this, info => info.StemsAndBranchesDayName);
+        _stemsAndBranchesDayNameHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetStemsAndBranchesDayName)
+                .ToProperty(this, info => info.StemsAndBranchesDayName);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetSolarTerm)
-            .ToPropertyEx(this, info => info.SolarTerm);
+        _solarTermHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetSolarTerm)
+                .ToProperty(this, info => info.SolarTerm);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetShuJiuOrDogDays)
-            .ToPropertyEx(this, info => info.ShuJiuOrDogDays);
+        _shuJiuOrDogDaysHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetShuJiuOrDogDays)
+                .ToProperty(this, info => info.ShuJiuOrDogDays);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetShuJiuDetail)
-            .ToPropertyEx(this, info => info.ShuJiuDetail);
+        _shuJiuDetailHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetShuJiuDetail)
+                .ToProperty(this, info => info.ShuJiuDetail);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(calendarService.GetDogDaysDetail)
-            .ToPropertyEx(this, info => info.DogDaysDetail);
+        _dogDaysDetailHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(calendarService.GetDogDaysDetail)
+                .ToProperty(this, info => info.DogDaysDetail);
 
         var festivalService = Locator.Current.GetService<FestivalService>();
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(festivalService.GetLunarFestival)
-            .ToPropertyEx(this, info => info.ChineseFestival);
+        _chineseFestivalHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(festivalService.GetLunarFestival)
+                .ToProperty(this, info => info.ChineseFestival);
 
-        this.WhenAnyValue(x => x.Date)
-            .Select(festivalService.GetFestival)
-            .ToPropertyEx(this, info => info.Festival);
+        _festivalHelper =
+            this.WhenAnyValue(x => x.Date)
+                .Select(festivalService.GetFestival)
+                .ToProperty(this, info => info.Festival);
     }
 }

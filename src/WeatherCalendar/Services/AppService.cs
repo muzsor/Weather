@@ -1,11 +1,11 @@
-﻿using ReactiveUI;
-using Splat;
 using System;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ReactiveUI;
+using Splat;
 using WeatherCalendar.Themes;
 
 namespace WeatherCalendar.Services;

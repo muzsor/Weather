@@ -1,23 +1,23 @@
-﻿using Splat;
 using System;
 using System.Linq;
+using Splat;
 using WeatherCalendar.Models;
 using WeatherCalendar.Utils;
 
 namespace WeatherCalendar.Services;
 
 /// <summary>
-/// 节日服务
+///     节日服务
 /// </summary>
 public class FestivalService
 {
     /// <summary>
-    /// 农历节日
+    ///     农历节日
     /// </summary>
     public LunarFestival[] LunarFestivals { get; set; }
 
     /// <summary>
-    /// 公历节日
+    ///     公历节日
     /// </summary>
     public Festival[] Festivals { get; set; }
 
@@ -29,7 +29,7 @@ public class FestivalService
     }
 
     /// <summary>
-    /// 加载
+    ///     加载
     /// </summary>
     /// <param name="file"></param>
     public void Load(string file)
@@ -48,7 +48,7 @@ public class FestivalService
     }
 
     /// <summary>
-    /// 获取指定日期的农历节日
+    ///     获取指定日期的农历节日
     /// </summary>
     /// <returns></returns>
     public string GetLunarFestival(DateTime date)
@@ -65,10 +65,9 @@ public class FestivalService
 
         var festival =
             LunarFestivals
-                .FirstOrDefault(
-                    f =>
-                        f.Month == lunarMonthName &&
-                        f.Day == lunarDayName);
+                .FirstOrDefault(f =>
+                    f.Month == lunarMonthName &&
+                    f.Day == lunarDayName);
 
         if (festival == null)
         {
@@ -84,7 +83,7 @@ public class FestivalService
     }
 
     /// <summary>
-    /// 获取指定日期的公历节日
+    ///     获取指定日期的公历节日
     /// </summary>
     /// <param name="date"></param>
     /// <returns></returns>
@@ -92,10 +91,9 @@ public class FestivalService
     {
         var festival =
             Festivals
-                .FirstOrDefault(
-                    f =>
-                        f.Month == date.Month &&
-                        f.Day == date.Day);
+                .FirstOrDefault(f =>
+                    f.Month == date.Month &&
+                    f.Day == date.Day);
 
         return festival?.Name;
     }

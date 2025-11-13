@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Forms;
@@ -17,10 +18,14 @@ using Application = System.Windows.Application;
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// Interaction logic for MainWindow.xaml
+///     Interaction logic for MainWindow.xaml
 /// </summary>
 public partial class MainWindow
 {
+    private CalendarWindow CalendarWindow { get; set; }
+
+    private bool IsSettingsWindowVisible { get; set; }
+
     public MainWindow()
     {
         InitializeComponent();
@@ -41,28 +46,28 @@ public partial class MainWindow
         // 当有多个显示器时置底主界面会消失（目前没有解决方案）
         if (appConfigService.Config.IsTopmost)
         {
-            this.Topmost = true;
+            Topmost = true;
         }
         else
         {
-            this.Topmost = false;
+            Topmost = false;
             if (Screen.AllScreens.Length == 1)
                 this.SetWindowBottom();
         }
 
-        this.MousePenetrationMenuItem.IsChecked = appConfigService.Config.IsMousePenetrate;
-        this.LockedPositionMenuItem.IsChecked = appConfigService.Config.IsLockedPosition;
-        this.BackgroundTransparentMenuItem.IsChecked = appConfigService.Config.IsBackgroundTransparent;
-        this.TopmostMenuItem.IsChecked = appConfigService.Config.IsTopmost;
-        this.Left = appConfigService.Config.WindowLeft;
-        this.Top = appConfigService.Config.WindowTop;
+        MousePenetrationMenuItem.IsChecked = appConfigService.Config.IsMousePenetrate;
+        LockedPositionMenuItem.IsChecked = appConfigService.Config.IsLockedPosition;
+        BackgroundTransparentMenuItem.IsChecked = appConfigService.Config.IsBackgroundTransparent;
+        TopmostMenuItem.IsChecked = appConfigService.Config.IsTopmost;
+        Left = appConfigService.Config.WindowLeft;
+        Top = appConfigService.Config.WindowTop;
 
-        this.AutoStartPackIcon.Visibility = AppHelper.IsAdministrator() ? Visibility.Collapsed : Visibility.Visible;
+        AutoStartPackIcon.Visibility = AppHelper.IsAdministrator() ? Visibility.Collapsed : Visibility.Visible;
 
-        this.MainGrid.Background =
-            appConfigService.Config.IsBackgroundTransparent ?
-                new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) :
-                theme!.MainWindowBackground;
+        MainGrid.Background =
+            appConfigService.Config.IsBackgroundTransparent
+                ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0))
+                : theme!.MainWindowBackground;
 
         this.OneWayBind(
                 ViewModel,
@@ -76,17 +81,17 @@ public partial class MainWindow
                 view => view.AutoStartMenuItem.IsChecked)
             .DisposeWith(disposable);
 
-        this.NotifyIcon
+        NotifyIcon
             .LeftClickCommand = ReactiveCommand.Create(ShowCalendarWindow);
 
-        this.CalendarDetailMenuItem
+        CalendarDetailMenuItem
             .Events()
             .Click
             .Do(_ => ShowCalendarWindow())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.MousePenetrationMenuItem
+        MousePenetrationMenuItem
             .Events()
             .Checked
             .Do(_ =>
@@ -98,7 +103,7 @@ public partial class MainWindow
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.MousePenetrationMenuItem
+        MousePenetrationMenuItem
             .Events()
             .Unchecked
             .Do(_ =>
@@ -110,7 +115,7 @@ public partial class MainWindow
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.LockedPositionMenuItem
+        LockedPositionMenuItem
             .Events()
             .Checked
             .Do(_ =>
@@ -121,7 +126,7 @@ public partial class MainWindow
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.LockedPositionMenuItem
+        LockedPositionMenuItem
             .Events()
             .Unchecked
             .Do(_ =>
@@ -132,7 +137,7 @@ public partial class MainWindow
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.BackgroundTransparentMenuItem
+        BackgroundTransparentMenuItem
             .Events()
             .Checked
             .Do(_ =>
@@ -144,7 +149,7 @@ public partial class MainWindow
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.BackgroundTransparentMenuItem
+        BackgroundTransparentMenuItem
             .Events()
             .Unchecked
             .Do(_ =>
@@ -168,7 +173,7 @@ public partial class MainWindow
                 view => view.AutoStartMenuItem)
             .DisposeWith(disposable);
 
-        this.UpdateWeatherMenuItem
+        UpdateWeatherMenuItem
             .Events()
             .Click
             .ObserveOn(RxApp.TaskpoolScheduler)
@@ -180,14 +185,14 @@ public partial class MainWindow
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.SettingsMenuItem
+        SettingsMenuItem
             .Events()
             .Click
             .Do(_ => ShowSettingWindow())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.CurrentMonthMenuItem
+        CurrentMonthMenuItem
             .Events()
             .Click
             .Select(_ => Unit.Default)
@@ -195,7 +200,7 @@ public partial class MainWindow
                 window => window.ViewModel.CurrentViewModel.CurrentMonthCommand)
             .DisposeWith(disposable);
 
-        this.LastMonthMenuItem
+        LastMonthMenuItem
             .Events()
             .Click
             .Select(_ => Unit.Default)
@@ -203,7 +208,7 @@ public partial class MainWindow
                 window => window.ViewModel.CurrentViewModel.LastMonthCommand)
             .DisposeWith(disposable);
 
-        this.NextMonthMenuItem
+        NextMonthMenuItem
             .Events()
             .Click
             .Select(_ => Unit.Default)
@@ -211,7 +216,7 @@ public partial class MainWindow
                 window => window.ViewModel.CurrentViewModel.NextMonthCommand)
             .DisposeWith(disposable);
 
-        this.QuitMenuItem
+        QuitMenuItem
             .Events()
             .Click
             .Do(_ => Application.Current.Shutdown())
@@ -255,7 +260,6 @@ public partial class MainWindow
             .DisposeWith(disposable);
     }
 
-    private CalendarWindow CalendarWindow { get; set; }
     private void ShowCalendarWindow()
     {
         if (CalendarWindow == null)
@@ -273,7 +277,6 @@ public partial class MainWindow
         CalendarWindow.Activate();
     }
 
-    private bool IsSettingsWindowVisible { get; set; }
     private void ShowSettingWindow()
     {
         if (IsSettingsWindowVisible)

@@ -1,10 +1,10 @@
-﻿using Anotar.NLog;
-using Microsoft.Win32;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Principal;
 using System.Windows;
+using Microsoft.Win32;
+using Splat;
 
 namespace WeatherCalendar.Utils;
 
@@ -46,7 +46,7 @@ public static class AppHelper
         }
         catch (Exception ex)
         {
-            LogTo.ErrorException("重启失败", ex);
+            LogHost.Default.Error(ex, "重启失败");
         }
     }
 
@@ -69,7 +69,7 @@ public static class AppHelper
         }
         catch (Exception ex)
         {
-            LogTo.ErrorException("请求管理员权限失败", ex);
+            LogHost.Default.Error(ex, "请求管理员权限失败");
         }
     }
 
@@ -81,7 +81,7 @@ public static class AppHelper
     }
 
     /// <summary>
-    /// 判断注册键值对是否存在，即是否处于开机启动状态
+    ///     判断注册键值对是否存在，即是否处于开机启动状态
     /// </summary>
     /// <param name="keyName">键值名</param>
     /// <returns></returns>
@@ -100,6 +100,7 @@ public static class AppHelper
                 var key6 = key5!.CreateSubKey("Run");
                 runs = key6;
             }
+
             var runsName = runs!.GetValueNames();
             return runsName.Any(strName => string.Equals(strName, keyName, StringComparison.CurrentCultureIgnoreCase));
         }
@@ -110,7 +111,7 @@ public static class AppHelper
     }
 
     /// <summary>
-    /// 写入或删除注册表键值对,即设为开机启动或开机不启动
+    ///     写入或删除注册表键值对,即设为开机启动或开机不启动
     /// </summary>
     /// <returns></returns>
     private static bool SetAutoStart(bool isAutoStart, string appName, string appFullName)
@@ -127,7 +128,7 @@ public static class AppHelper
                 key!.SetValue(appName, appFullName);
                 key.Close();
             }
-            else//否则删除键值对
+            else //否则删除键值对
             {
                 var keyNames = key!.GetValueNames();
                 foreach (var keyName in keyNames)
@@ -142,7 +143,7 @@ public static class AppHelper
         }
         catch (Exception ex)
         {
-            LogTo.ErrorException("修改开启自启注册表失败", ex);
+            LogHost.Default.Error(ex, "修改开启自启注册表失败");
             return false;
         }
 

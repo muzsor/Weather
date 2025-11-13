@@ -1,34 +1,34 @@
-﻿using System;
+using System;
 using WeatherCalendar.Models;
 
 namespace WeatherCalendar.Services;
 
 /// <summary>
-/// 假期服务
+///     假期服务
 /// </summary>
 public interface IHolidayService
 {
     /// <summary>
-    /// 所有假期
+    ///     所有假期
     /// </summary>
     public Holiday[] Holidays { get; }
 
     /// <summary>
-    /// 加载
+    ///     加载
     /// </summary>
     /// <param name="file">文件</param>
     /// <returns></returns>
     public Holiday[] Load(string file);
 
     /// <summary>
-    /// 获取指定日期的假期
+    ///     获取指定日期的假期
     /// </summary>
     /// <param name="date"></param>
     /// <returns></returns>
     public Holiday GetHoliday(DateTime date);
 
     /// <summary>
-    /// 添加假期
+    ///     添加假期
     /// </summary>
     /// <param name="year">年</param>
     /// <param name="name">名称</param>
@@ -37,7 +37,7 @@ public interface IHolidayService
     public void Add(int year, string name, DateTime date, bool isRestDay);
 
     /// <summary>
-    /// 删除假期
+    ///     删除假期
     /// </summary>
     /// <param name="year">年</param>
     /// <param name="name">名称</param>
@@ -46,7 +46,7 @@ public interface IHolidayService
     public void Remove(int year, string name, DateTime date, bool isRestDay);
 
     /// <summary>
-    /// 删除假期
+    ///     删除假期
     /// </summary>
     /// <param name="year">年</param>
     /// <param name="name">名称</param>

@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using ReactiveMarbles.ObservableEvents;
@@ -11,10 +12,12 @@ using WeatherCalendar.ViewModels;
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// CalendarWindow.xaml 的交互逻辑
+///     CalendarWindow.xaml 的交互逻辑
 /// </summary>
 public partial class CalendarWindow
 {
+    private bool IsChangingCity { get; set; }
+
     public CalendarWindow()
     {
         InitializeComponent();
@@ -74,7 +77,7 @@ public partial class CalendarWindow
                 forecast => forecast?.Status?.City)
             .DisposeWith(disposable);
 
-        this.UpdateButton
+        UpdateButton
             .Events()
             .Click
             .Do(_ =>
@@ -85,14 +88,14 @@ public partial class CalendarWindow
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.CityButton
+        CityButton
             .Events()
             .Click
             .Do(_ => ChangeWeatherCity())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.PinButton
+        PinButton
             .Events()
             .Click
             .Do(_ => Topmost = !Topmost)
@@ -117,36 +120,35 @@ public partial class CalendarWindow
                 view => view.NextMonthButton)
             .DisposeWith(disposable);
 
-        this.TitleBorder
+        TitleBorder
             .Events()
             .MouseLeftButtonDown
             .Do(_ => DragMove())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.CloseButton
+        CloseButton
             .Events()
             .Click
             .Do(_ => Close())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.YearsComboBox
+        YearsComboBox
             .Events()
             .SelectionChanged
-            .Do(_ => this.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)))
+            .Do(_ => MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)))
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.MonthsComboBox
+        MonthsComboBox
             .Events()
             .SelectionChanged
-            .Do(_ => this.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)))
+            .Do(_ => MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)))
             .Subscribe()
             .DisposeWith(disposable);
     }
 
-    private bool IsChangingCity { get; set; }
     private void ChangeWeatherCity()
     {
         if (IsChangingCity)

@@ -1,13 +1,14 @@
-﻿using ReactiveUI;
-using Splat;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Windows;
+using ReactiveUI;
+using Splat;
 using WeatherCalendar.Themes;
 
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// CalendarView.xaml 的交互逻辑
+///     CalendarView.xaml 的交互逻辑
 /// </summary>
 public partial class CalendarView
 {
@@ -34,94 +35,103 @@ public partial class CalendarView
             .DisposeWith(disposable);
 
         this.OneWayBind(
-            ViewModel,
-            model => model.CurrentMonth,
-            view => view.Column1TextBlock.Foreground,
-            _ =>
-            {
-                var theme = Locator.Current.GetService<ITheme>();
-                return theme.DayNameNormalForeground;
-            });
+                ViewModel,
+                model => model.CurrentMonth,
+                view => view.Column1TextBlock.Foreground,
+                _ =>
+                {
+                    var theme = Locator.Current.GetService<ITheme>();
+                    return theme.DayNameNormalForeground;
+                })
+            .DisposeWith(disposable);
 
         this.OneWayBind(
-            ViewModel,
-            model => model.CurrentMonth,
-            view => view.Column2TextBlock.Foreground,
-            _ =>
-            {
-                var theme = Locator.Current.GetService<ITheme>();
-                return theme.DayNameNormalForeground;
-            });
+                ViewModel,
+                model => model.CurrentMonth,
+                view => view.Column2TextBlock.Foreground,
+                _ =>
+                {
+                    var theme = Locator.Current.GetService<ITheme>();
+                    return theme.DayNameNormalForeground;
+                })
+            .DisposeWith(disposable);
 
         this.OneWayBind(
-            ViewModel,
-            model => model.CurrentMonth,
-            view => view.Column3TextBlock.Foreground,
-            _ =>
-            {
-                var theme = Locator.Current.GetService<ITheme>();
-                return theme.DayNameNormalForeground;
-            });
+                ViewModel,
+                model => model.CurrentMonth,
+                view => view.Column3TextBlock.Foreground,
+                _ =>
+                {
+                    var theme = Locator.Current.GetService<ITheme>();
+                    return theme.DayNameNormalForeground;
+                })
+            .DisposeWith(disposable);
 
         this.OneWayBind(
-            ViewModel,
-            model => model.CurrentMonth,
-            view => view.Column4TextBlock.Foreground,
-            _ =>
-            {
-                var theme = Locator.Current.GetService<ITheme>();
-                return theme.DayNameNormalForeground;
-            });
+                ViewModel,
+                model => model.CurrentMonth,
+                view => view.Column4TextBlock.Foreground,
+                _ =>
+                {
+                    var theme = Locator.Current.GetService<ITheme>();
+                    return theme.DayNameNormalForeground;
+                })
+            .DisposeWith(disposable);
 
         this.OneWayBind(
-            ViewModel,
-            model => model.CurrentMonth,
-            view => view.Column5TextBlock.Foreground,
-            _ =>
-            {
-                var theme = Locator.Current.GetService<ITheme>();
-                return theme.DayNameNormalForeground;
-            });
+                ViewModel,
+                model => model.CurrentMonth,
+                view => view.Column5TextBlock.Foreground,
+                _ =>
+                {
+                    var theme = Locator.Current.GetService<ITheme>();
+                    return theme.DayNameNormalForeground;
+                })
+            .DisposeWith(disposable);
 
         this.OneWayBind(
-            ViewModel,
-            model => model.CurrentMonth,
-            view => view.Column6TextBlock.Foreground,
-            _ =>
-            {
-                var theme = Locator.Current.GetService<ITheme>();
-                return theme.DayNameWeekendForeground;
-            });
+                ViewModel,
+                model => model.CurrentMonth,
+                view => view.Column6TextBlock.Foreground,
+                _ =>
+                {
+                    var theme = Locator.Current.GetService<ITheme>();
+                    return theme.DayNameWeekendForeground;
+                })
+            .DisposeWith(disposable);
 
         this.OneWayBind(
-            ViewModel,
-            model => model.CurrentMonth,
-            view => view.Column7TextBlock.Foreground,
-            _ =>
-            {
-                var theme = Locator.Current.GetService<ITheme>();
-                return theme.DayNameWeekendForeground;
-            });
+                ViewModel,
+                model => model.CurrentMonth,
+                view => view.Column7TextBlock.Foreground,
+                _ =>
+                {
+                    var theme = Locator.Current.GetService<ITheme>();
+                    return theme.DayNameWeekendForeground;
+                })
+            .DisposeWith(disposable);
 
         this.OneWayBind(
-            ViewModel,
-            model => model.CurrentMonth,
-            view => view.MonthTextBlock.Foreground,
-            _ =>
-            {
-                var theme = Locator.Current.GetService<ITheme>();
-                return theme.BackgroundMonthForeground;
-            });
+                ViewModel,
+                model => model.CurrentMonth,
+                view => view.MonthTextBlock.Foreground,
+                _ =>
+                {
+                    var theme = Locator.Current.GetService<ITheme>();
+                    return theme.BackgroundMonthForeground;
+                })
+            .DisposeWith(disposable);
 
         this.OneWayBind(
-            ViewModel,
-            model => model.CurrentMonth,
-            view => view.MonthTextBlock.Opacity,
-            _ =>
-            {
-                var theme = Locator.Current.GetService<ITheme>();
-                return theme.BackgroundMonthOpacity;
-            });
+                ViewModel,
+                model => model.CurrentMonth,
+                view => view.MonthTextBlock.Opacity,
+                _ =>
+                {
+                    var theme = Locator.Current.GetService<ITheme>();
+                    return theme.BackgroundMonthOpacity;
+                })
+            .DisposeWith(disposable);
 
         if (UniformGrid.Children.Count > 0)
             return;

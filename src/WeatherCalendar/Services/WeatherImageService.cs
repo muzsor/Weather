@@ -1,5 +1,5 @@
-﻿using ReactiveUI;
 using System.IO;
+using ReactiveUI;
 using WeatherCalendar.ViewModels;
 
 namespace WeatherCalendar.Services;
@@ -28,12 +28,10 @@ public class WeatherImageService : IWeatherImageService
 
             return new WeatherImageViewModel { ImageFile = imageFileOfNight };
         }
-        else
-        {
-            if (!File.Exists(imageFile))
-                return null;
 
-            return new WeatherImageViewModel { ImageFile = imageFile };
-        }
+        if (!File.Exists(imageFile))
+            return null;
+
+        return new WeatherImageViewModel { ImageFile = imageFile };
     }
 }

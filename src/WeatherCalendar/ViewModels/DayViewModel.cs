@@ -1,11 +1,12 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using Splat;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using Splat;
 using Weather;
 using WeatherCalendar.Models;
 using WeatherCalendar.Services;
@@ -14,255 +15,284 @@ using WeatherCalendar.Services;
 
 namespace WeatherCalendar.ViewModels;
 
-public class DayViewModel : ReactiveObject
+public partial class DayViewModel : ReactiveBase
 {
     /// <summary>
-    /// 是否有效
+    ///     所有视图模型
+    /// </summary>
+    private static readonly List<WeakReference<DayViewModel>> AllDayViewModels = new();
+
+    /// <summary>
+    ///     是否有效
     /// </summary>
     [Reactive]
-    public bool IsValid { get; set; }
+    public partial bool IsValid { get; set; }
 
     /// <summary>
-    /// 日期信息
+    ///     日期信息
     /// </summary>
     [Reactive]
-    public DateInfo Date { get; set; }
+    public partial DateInfo Date { get; set; }
 
     /// <summary>
-    /// 是否为当日
+    ///     是否为当日
     /// </summary>
     [Reactive]
-    public bool IsCurrentDay { get; private set; }
+    public partial bool IsCurrentDay { get; private set; }
 
     /// <summary>
-    /// 是否为当前月
+    ///     是否为当前月
     /// </summary>
     [Reactive]
-    public bool IsCurrentPageMonth { get; set; }
+    public partial bool IsCurrentPageMonth { get; set; }
 
     /// <summary>
-    /// 天气信息
+    ///     天气信息
     /// </summary>
     [Reactive]
-    public ForecastInfo Forecast { get; set; }
+    public partial ForecastInfo Forecast { get; set; }
 
     /// <summary>
-    /// 生肖视图模型
+    ///     生肖视图模型
     /// </summary>
-    [ObservableAsProperty]
-    public ReactiveObject ChineseZodiacViewModel { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial ReactiveObject ChineseZodiacViewModel { get; }
 
     /// <summary>
-    /// 白天天气图片视图模型
+    ///     白天天气图片视图模型
     /// </summary>
-    [ObservableAsProperty]
-    public ReactiveObject DayWeatherImageViewModel { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial ReactiveObject DayWeatherImageViewModel { get; }
 
     /// <summary>
-    /// 夜间天气图片视图模型
+    ///     夜间天气图片视图模型
     /// </summary>
-    [ObservableAsProperty]
-    public ReactiveObject NightWeatherImageViewModel { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial ReactiveObject NightWeatherImageViewModel { get; }
 
     /// <summary>
-    /// 公历日期
+    ///     公历日期
     /// </summary>
-    [ObservableAsProperty]
-    public string DayName { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string DayName { get; }
 
     /// <summary>
-    /// 农历日期
+    ///     农历日期
     /// </summary>
-    [ObservableAsProperty]
-    public string LunarDayName { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string LunarDayName { get; }
 
     /// <summary>
-    /// 节气
+    ///     节气
     /// </summary>
-    [ObservableAsProperty]
-    public string SolarTermName { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string SolarTermName { get; }
 
     /// <summary>
-    /// 节假日
+    ///     节假日
     /// </summary>
-    [ObservableAsProperty]
-    public string FestivalName { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string FestivalName { get; }
 
     /// <summary>
-    /// 是否为中国节假日
+    ///     是否为中国节假日
     /// </summary>
-    [ObservableAsProperty]
-    public bool IsChineseFestival { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial bool IsChineseFestival { get; }
 
     /// <summary>
-    /// 是否为周末
+    ///     是否为周末
     /// </summary>
-    [ObservableAsProperty]
-    public bool IsWeekend { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial bool IsWeekend { get; }
 
     /// <summary>
-    /// 假日名城
+    ///     假日名城
     /// </summary>
-    [ObservableAsProperty]
-    public string HolidayName { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string HolidayName { get; }
 
     /// <summary>
-    /// 是否为休息日
+    ///     是否为休息日
     /// </summary>
-    [ObservableAsProperty]
-    public bool IsHolidayRestDay { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial bool IsHolidayRestDay { get; }
 
     /// <summary>
-    /// 是否正在编辑
+    ///     是否正在编辑
     /// </summary>
     [Reactive]
-    public bool IsEditing { get; set; }
+    public partial bool IsEditing { get; set; }
 
     /// <summary>
-    /// 编辑假日命令
+    ///     编辑假日命令
     /// </summary>
     public ReactiveCommand<Unit, Unit> EditHolidayCommand;
 
     /// <summary>
-    /// 删除假日命令
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> RemoveHolidayCommand;
-
-    /// <summary>
-    /// 获取假日信息交互
+    ///     获取假日信息交互
     /// </summary>
     public Interaction<(string, bool), (string, bool)> GetHolidayInfoInteraction;
 
     /// <summary>
-    /// 所有视图模型
+    ///     删除假日命令
     /// </summary>
-    private static readonly List<WeakReference<DayViewModel>> AllDayViewModels = new List<WeakReference<DayViewModel>>();
+    public ReactiveCommand<Unit, Unit> RemoveHolidayCommand;
 
     public DayViewModel()
     {
-        var appService = Locator.Current.GetService<AppService>();
-
         AllDayViewModels.Add(new WeakReference<DayViewModel>(this));
 
         Date = new DateInfo();
+    }
+
+    protected override void OnWhenActivated(CompositeDisposable disposable)
+    {
+        base.OnWhenActivated(disposable);
+
+        var appService = Locator.Current.GetService<AppService>();
 
         appService
             .TimerPerMinute
             .Select(_ => Date.Date == DateTime.Today)
-            .ObserveOnDispatcher()
+            .ObserveOn(RxApp.MainThreadScheduler)
             .Do(isToday => IsCurrentDay = isToday)
-            .Subscribe();
+            .Subscribe()
+            .DisposeWith(disposable);
 
         this.WhenAnyValue(x => x.Date.Date)
             .Select(d => d.Date == DateTime.Today)
             .Do(isToday => IsCurrentDay = isToday)
-            .Subscribe();
+            .Subscribe()
+            .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.Date.Date)
-            .Select(d => d.Day.ToString())
-            .ToPropertyEx(this, model => model.DayName);
+        _dayNameHelper =
+            this.WhenAnyValue(x => x.Date.Date)
+                .Select(d => d.Day.ToString())
+                .ToProperty(this, model => model.DayName)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.Date.Date)
-            .Select(d => d.DayOfWeek == DayOfWeek.Saturday || d.DayOfWeek == DayOfWeek.Sunday)
-            .ToPropertyEx(this, model => model.IsWeekend);
+        _isWeekendHelper =
+            this.WhenAnyValue(x => x.Date.Date)
+                .Select(d => d.DayOfWeek == DayOfWeek.Saturday || d.DayOfWeek == DayOfWeek.Sunday)
+                .ToProperty(this, model => model.IsWeekend)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(
-                x => x.Date.LunarDayName,
-                x => x.Date.LunarMonthName,
-                x => x.Date.LunarMonthSizeFlag,
-                x => x.Date.LunarLeapMonthFlag,
-                (lunarDayName,
-                    lunarMonthName,
-                    lunarMonthSizeFlag,
-                    lunarLeapMonthFlag) =>
-                {
-                    if (lunarDayName == "初一")
-                        return $"{lunarLeapMonthFlag}{lunarMonthName}{lunarMonthSizeFlag}";
+        _lunarDayNameHelper =
+            this.WhenAnyValue(
+                    x => x.Date.LunarDayName,
+                    x => x.Date.LunarMonthName,
+                    x => x.Date.LunarMonthSizeFlag,
+                    x => x.Date.LunarLeapMonthFlag,
+                    (lunarDayName,
+                        lunarMonthName,
+                        lunarMonthSizeFlag,
+                        lunarLeapMonthFlag) =>
+                    {
+                        if (lunarDayName == "初一")
+                            return $"{lunarLeapMonthFlag}{lunarMonthName}{lunarMonthSizeFlag}";
 
-                    return lunarDayName;
-                })
-            .ToPropertyEx(this, model => model.LunarDayName);
+                        return lunarDayName;
+                    })
+                .ToProperty(this, model => model.LunarDayName)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(
-                x => x.Date.SolarTerm,
-                x => x.Date.ShuJiuOrDogDays,
-                (solarTerm, shuJiuOrDogDays) =>
-                {
-                    if (!string.IsNullOrWhiteSpace(solarTerm))
-                        return solarTerm;
+        _solarTermNameHelper =
+            this.WhenAnyValue(
+                    x => x.Date.SolarTerm,
+                    x => x.Date.ShuJiuOrDogDays,
+                    (solarTerm, shuJiuOrDogDays) =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(solarTerm))
+                            return solarTerm;
 
-                    if (!string.IsNullOrWhiteSpace(shuJiuOrDogDays))
-                        return shuJiuOrDogDays;
+                        if (!string.IsNullOrWhiteSpace(shuJiuOrDogDays))
+                            return shuJiuOrDogDays;
 
-                    return "";
-                })
-            .ToPropertyEx(this, model => model.SolarTermName);
+                        return "";
+                    })
+                .ToProperty(this, model => model.SolarTermName)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(
-                x => x.Date.ChineseFestival,
-                x => x.Date.Festival,
-                (chineseFestival, festival) =>
-                {
-                    if (!string.IsNullOrWhiteSpace(chineseFestival))
-                        return chineseFestival;
+        _festivalNameHelper =
+            this.WhenAnyValue(
+                    x => x.Date.ChineseFestival,
+                    x => x.Date.Festival,
+                    (chineseFestival, festival) =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(chineseFestival))
+                            return chineseFestival;
 
-                    return festival;
-                })
-            .ToPropertyEx(this, model => model.FestivalName);
+                        return festival;
+                    })
+                .ToProperty(this, model => model.FestivalName)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.Date.ChineseFestival)
-            .Select(chineseFestival => !string.IsNullOrWhiteSpace(chineseFestival))
-            .ToPropertyEx(this, model => model.IsChineseFestival);
+        _isChineseFestivalHelper =
+            this.WhenAnyValue(x => x.Date.ChineseFestival)
+                .Select(chineseFestival => !string.IsNullOrWhiteSpace(chineseFestival))
+                .ToProperty(this, model => model.IsChineseFestival)
+                .DisposeWith(disposable);
 
         var chineseZodiacService = Locator.Current.GetService<IChineseZodiacService>();
 
-        this.WhenAnyValue(x => x.Date.ChineseZodiacOfFirstMonth)
-            .Select(chineseZodiacService.GetChineseZodiacViewModel)
-            .ToPropertyEx(this, model => model.ChineseZodiacViewModel);
+        _chineseZodiacViewModelHelper =
+            this.WhenAnyValue(x => x.Date.ChineseZodiacOfFirstMonth)
+                .Select(chineseZodiacService.GetChineseZodiacViewModel)
+                .ToProperty(this, model => model.ChineseZodiacViewModel)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.Forecast)
-            .Select(f => f?.DayWeather?.Weather)
-            .Select(w => Locator.Current.GetService<IWeatherImageService>()?.GetWeatherImageViewModel(w, false))
-            .ToPropertyEx(this, model => model.DayWeatherImageViewModel);
+        _dayWeatherImageViewModelHelper =
+            this.WhenAnyValue(x => x.Forecast)
+                .Select(f => f?.DayWeather?.Weather)
+                .Select(w => Locator.Current.GetService<IWeatherImageService>()?.GetWeatherImageViewModel(w, false))
+                .ToProperty(this, model => model.DayWeatherImageViewModel)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.Forecast)
-            .Select(f => f?.NightWeather?.Weather)
-            .Select(w => Locator.Current.GetService<IWeatherImageService>()?.GetWeatherImageViewModel(w, true))
-            .ToPropertyEx(this, model => model.NightWeatherImageViewModel);
+        _nightWeatherImageViewModelHelper =
+            this.WhenAnyValue(x => x.Forecast)
+                .Select(f => f?.NightWeather?.Weather)
+                .Select(w => Locator.Current.GetService<IWeatherImageService>()?.GetWeatherImageViewModel(w, true))
+                .ToProperty(this, model => model.NightWeatherImageViewModel)
+                .DisposeWith(disposable);
 
         var holidayService = Locator.Current.GetService<IHolidayService>();
 
-        this.WhenAnyValue(
-                x => x.Date.Date,
-                x => x.IsValid,
-                (date, _) => date)
-            .Select(d =>
-            {
-                var holiday = holidayService.GetHoliday(d);
-                return holiday?.Name;
-            })
-            .ToPropertyEx(this, model => model.HolidayName);
+        _holidayNameHelper =
+            this.WhenAnyValue(
+                    x => x.Date.Date,
+                    x => x.IsValid,
+                    (date, _) => date)
+                .Select(d =>
+                {
+                    var holiday = holidayService.GetHoliday(d);
+                    return holiday?.Name;
+                })
+                .ToProperty(this, model => model.HolidayName)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(
-                x => x.Date.Date,
-                x => x.IsValid,
-                (date, _) => date)
-            .Select(d =>
-            {
-                var holiday = holidayService.GetHoliday(d);
-                if (holiday == null)
-                    return false;
+        _isHolidayRestDayHelper =
+            this.WhenAnyValue(
+                    x => x.Date.Date,
+                    x => x.IsValid,
+                    (date, _) => date)
+                .Select(d =>
+                {
+                    var holiday = holidayService.GetHoliday(d);
+                    if (holiday == null)
+                        return false;
 
-                return holiday.RestDates?.Contains(d.Date) ?? false;
-            })
-            .ToPropertyEx(this, model => model.IsHolidayRestDay);
+                    return holiday.RestDates?.Contains(d.Date) ?? false;
+                })
+                .ToProperty(this, model => model.IsHolidayRestDay)
+                .DisposeWith(disposable);
 
         var canEditHoliday =
             this.WhenAnyValue(
                 x => x.IsEditing,
                 isEditing => !isEditing);
 
-        this.EditHolidayCommand = ReactiveCommand.CreateFromTask(async () =>
+        EditHolidayCommand = ReactiveCommand.CreateFromTask(async () =>
         {
             try
             {
@@ -286,7 +316,7 @@ public class DayViewModel : ReactiveObject
             }
         }, canEditHoliday);
 
-        this.RemoveHolidayCommand = ReactiveCommand.Create(() =>
+        RemoveHolidayCommand = ReactiveCommand.Create(() =>
         {
             holidayService.Remove(Date.Date.Year, HolidayName, Date.Date);
             IsValid = false;
@@ -310,10 +340,8 @@ public class DayViewModel : ReactiveObject
     private static void SetIsEditing(bool isEditing)
     {
         foreach (var dayViewModel in AllDayViewModels)
-        {
             if (dayViewModel.TryGetTarget(out var day))
                 day.IsEditing = isEditing;
-        }
     }
 
     public override string ToString()

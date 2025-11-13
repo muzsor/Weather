@@ -1,4 +1,4 @@
-﻿using Ymiot.Core.Miio;
+using Ymiot.Core.Miio;
 
 namespace WeatherCalendar.Models;
 

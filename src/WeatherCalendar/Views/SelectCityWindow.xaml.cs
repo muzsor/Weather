@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows;
 using ReactiveMarbles.ObservableEvents;
@@ -10,7 +11,7 @@ using WeatherCalendar.ViewModels;
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// SelectCityWindow.xaml 的交互逻辑
+///     SelectCityWindow.xaml 的交互逻辑
 /// </summary>
 public partial class SelectCityWindow
 {
@@ -68,21 +69,21 @@ public partial class SelectCityWindow
                 city => city == null ? Visibility.Visible : Visibility.Hidden)
             .DisposeWith(disposable);
 
-        this.TitleBorder
+        TitleBorder
             .Events()
             .MouseLeftButtonDown
             .Do(_ => DragMove())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.CloseButton
+        CloseButton
             .Events()
             .Click
             .Do(_ => Close())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.CancelButton
+        CancelButton
             .Events()
             .Click
             .Do(_ => Close())

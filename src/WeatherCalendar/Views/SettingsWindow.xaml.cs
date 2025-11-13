@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows;
 using Microsoft.Win32;
@@ -12,7 +13,7 @@ using WeatherCalendar.ViewModels;
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// SettingsWindow.xaml 的交互逻辑
+///     SettingsWindow.xaml 的交互逻辑
 /// </summary>
 public partial class SettingsWindow
 {
@@ -140,21 +141,21 @@ public partial class SettingsWindow
                 view => view.SelectWeatherIconPathButton.IsEnabled)
             .DisposeWith(disposable);
 
-        this.TitleBorder
+        TitleBorder
             .Events()
             .MouseLeftButtonDown
             .Do(_ => DragMove())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.CloseButton
+        CloseButton
             .Events()
             .Click
             .Do(_ => Close())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.SelectWeatherIconPathButton
+        SelectWeatherIconPathButton
             .Events()
             .Click
             .Select(_ =>

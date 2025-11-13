@@ -1,51 +1,61 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using Splat;
 using System;
+using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using Splat;
 using WeatherCalendar.Services;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
 
 namespace WeatherCalendar.ViewModels;
 
-public class WorkTimerViewModel : ReactiveObject
+public partial class WorkTimerViewModel : ReactiveBase
 {
     /// <summary>
-    /// 倒计时类型
+    ///     倒计时类型
     /// </summary>
-    [ObservableAsProperty]
-    public WorkCountdownType CountdownType { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial WorkCountdownType CountdownType { get; }
 
     /// <summary>
-    /// 倒计时
+    ///     倒计时
     /// </summary>
-    [ObservableAsProperty]
-    public TimeSpan CountdownTime { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial TimeSpan CountdownTime { get; }
 
     /// <summary>
-    /// 是否显示
+    ///     是否显示
     /// </summary>
-    [ObservableAsProperty]
-    public bool IsVisible { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial bool IsVisible { get; }
 
-    public WorkTimerViewModel()
+    protected override void OnWhenActivated(CompositeDisposable disposable)
     {
+        base.OnWhenActivated(disposable);
+
         var workTimerService = Locator.Current.GetService<WorkTimerService>();
 
-        workTimerService
-            .WhenAnyValue(x => x.IsVisible)
-            .ObserveOnDispatcher()
-            .ToPropertyEx(this, model => model.IsVisible);
+        _isVisibleHelper =
+            workTimerService
+                .WhenAnyValue(x => x.IsVisible)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, model => model.IsVisible)
+                .DisposeWith(disposable);
 
-        workTimerService
-            .WhenAnyValue(x => x.CountdownType)
-            .ObserveOnDispatcher()
-            .ToPropertyEx(this, model => model.CountdownType);
+        _countdownTypeHelper =
+            workTimerService
+                .WhenAnyValue(x => x.CountdownType)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, model => model.CountdownType)
+                .DisposeWith(disposable);
 
-        workTimerService
-            .WhenAnyValue(x => x.CountdownTime)
-            .ObserveOnDispatcher()
-            .ToPropertyEx(this, model => model.CountdownTime);
+        _countdownTimeHelper =
+            workTimerService
+                .WhenAnyValue(x => x.CountdownTime)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, model => model.CountdownTime)
+                .DisposeWith(disposable);
     }
 }

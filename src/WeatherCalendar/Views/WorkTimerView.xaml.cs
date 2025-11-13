@@ -1,16 +1,17 @@
-﻿using ReactiveUI;
-using Splat;
 using System;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows;
+using ReactiveUI;
+using Splat;
 using WeatherCalendar.Services;
 using WeatherCalendar.Themes;
 
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// WorkTimerView.xaml 的交互逻辑
+///     WorkTimerView.xaml 的交互逻辑
 /// </summary>
 public partial class WorkTimerView
 {
@@ -45,29 +46,29 @@ public partial class WorkTimerView
                 if (totalMinutes > 1)
                 {
                     totalMinutes++;
-                    this.HourTextBlock.Text = $"{Math.Floor(totalMinutes / 60)}";
-                    this.MinuteTextBlock.Text = $"{Math.Floor(totalMinutes % 60)}";
-                    this.Const3TextBlock.Text = "小时";
-                    this.Const4TextBlock.Visibility = Visibility.Visible;
-                    this.MinuteTextBlock.Visibility = Visibility.Visible;
+                    HourTextBlock.Text = $"{Math.Floor(totalMinutes / 60)}";
+                    MinuteTextBlock.Text = $"{Math.Floor(totalMinutes % 60)}";
+                    Const3TextBlock.Text = "小时";
+                    Const4TextBlock.Visibility = Visibility.Visible;
+                    MinuteTextBlock.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    this.HourTextBlock.Text = $"{Math.Floor(time.TotalSeconds)}";
-                    this.Const3TextBlock.Text = "秒";
-                    this.Const4TextBlock.Visibility = Visibility.Collapsed;
-                    this.MinuteTextBlock.Visibility = Visibility.Collapsed;
+                    HourTextBlock.Text = $"{Math.Floor(time.TotalSeconds)}";
+                    Const3TextBlock.Text = "秒";
+                    Const4TextBlock.Visibility = Visibility.Collapsed;
+                    MinuteTextBlock.Visibility = Visibility.Collapsed;
                 }
 
                 var theme = Locator.Current.GetService<ITheme>();
-                this.Const1TextBlock.Foreground = theme.WorkTimerNormalForeground;
-                this.Const2TextBlock.Foreground = theme.WorkTimerNormalForeground;
-                this.Const3TextBlock.Foreground = theme.WorkTimerNormalForeground;
-                this.Const4TextBlock.Foreground = theme.WorkTimerNormalForeground;
+                Const1TextBlock.Foreground = theme.WorkTimerNormalForeground;
+                Const2TextBlock.Foreground = theme.WorkTimerNormalForeground;
+                Const3TextBlock.Foreground = theme.WorkTimerNormalForeground;
+                Const4TextBlock.Foreground = theme.WorkTimerNormalForeground;
 
-                this.TimerTypeTextBlock.Foreground = theme.WorkTimerTimeForeground;
-                this.HourTextBlock.Foreground = theme.WorkTimerTimeForeground;
-                this.MinuteTextBlock.Foreground = theme.WorkTimerTimeForeground;
+                TimerTypeTextBlock.Foreground = theme.WorkTimerTimeForeground;
+                HourTextBlock.Foreground = theme.WorkTimerTimeForeground;
+                MinuteTextBlock.Foreground = theme.WorkTimerTimeForeground;
             })
             .Subscribe()
             .DisposeWith(disposable);

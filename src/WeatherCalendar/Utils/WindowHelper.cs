@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -54,7 +54,7 @@ public static class WindowHelper
     }
 
     /// <summary>
-    /// 获取桌面句柄
+    ///     获取桌面句柄
     /// </summary>
     /// <returns></returns>
     private static IntPtr GetDesktopPtr()
@@ -68,9 +68,7 @@ public static class WindowHelper
         {
             hShellDefView = FindWindowEx(hProgMan, IntPtr.Zero, "SHELLDLL_DefView", null);
             if (hShellDefView != IntPtr.Zero)
-            {
                 hwndDesktop = FindWindowEx(hShellDefView, IntPtr.Zero, "SysListView32", null);
-            }
         }
 
         if (hwndDesktop != IntPtr.Zero)

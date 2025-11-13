@@ -1,19 +1,19 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using Splat;
 using System.Reactive;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using Splat;
 using WeatherCalendar.Services;
 using WeatherCalendar.Utils;
 
 namespace WeatherCalendar.ViewModels;
 
-public class MainWindowViewModel : ReactiveObject
+public partial class MainWindowViewModel : ReactiveBase
 {
     [Reactive]
-    public CalendarBaseViewModel CurrentViewModel { get; set; }
+    public partial CalendarBaseViewModel CurrentViewModel { get; set; }
 
     [Reactive]
-    public bool IsAutoStart { get; set; }
+    public partial bool IsAutoStart { get; set; }
 
     public ReactiveCommand<Unit, Unit> SwitchAutoStartCommand;
 

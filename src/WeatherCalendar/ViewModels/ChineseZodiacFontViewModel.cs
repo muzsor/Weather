@@ -1,24 +1,30 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
 
 namespace WeatherCalendar.ViewModels;
 
-public class ChineseZodiacFontViewModel : ReactiveObject
+public partial class ChineseZodiacFontViewModel : ReactiveBase
 {
     [Reactive]
-    public string ChineseZodiac { get; set; }
+    public partial string ChineseZodiac { get; set; }
 
-    [ObservableAsProperty]
-    public string Text { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string Text { get; }
 
-    public ChineseZodiacFontViewModel()
+    protected override void OnWhenActivated(CompositeDisposable disposable)
     {
-        this.WhenAnyValue(x => x.ChineseZodiac)
-            .Select(GetText)
-            .ToPropertyEx(this, model => model.Text);
+        base.OnWhenActivated(disposable);
+
+        _textHelper =
+            this.WhenAnyValue(x => x.ChineseZodiac)
+                .Select(GetText)
+                .ToProperty(this, model => model.Text)
+                .DisposeWith(disposable);
     }
 
     private string GetText(string chineseZodiac)

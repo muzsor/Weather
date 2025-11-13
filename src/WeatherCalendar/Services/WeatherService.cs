@@ -1,37 +1,36 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using Splat;
 using System;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using ReactiveUI.SourceGenerators;
+using Splat;
 using Weather;
 
 namespace WeatherCalendar.Services;
 
-public class WeatherService : ReactiveObject
+public partial class WeatherService : ReactiveBase
 {
     /// <summary>
-    /// 天气预报
+    ///     天气预报
     /// </summary>
     [Reactive]
-    public WeatherForecast Forecast { get; set; }
+    public partial WeatherForecast Forecast { get; set; }
 
     /// <summary>
-    /// 城市
+    ///     城市
     /// </summary>
     [Reactive]
-    public CityKeyInfo City { get; set; }
+    public partial CityKeyInfo City { get; set; }
 
     /// <summary>
-    /// 最后更新时间
+    ///     最后更新时间
     /// </summary>
     [Reactive]
-    public DateTime LastUpdateTime { get; set; }
+    public partial DateTime LastUpdateTime { get; set; }
 
     private IDisposable Disposable { get; set; }
 
     /// <summary>
-    /// 获取所有城市
+    ///     获取所有城市
     /// </summary>
     /// <returns></returns>
     public CityKeyInfo[] GetCities()

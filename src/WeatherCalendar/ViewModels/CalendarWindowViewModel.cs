@@ -1,9 +1,10 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using Splat;
 using System;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using Splat;
 using Weather;
 using WeatherCalendar.Services;
 
@@ -11,53 +12,49 @@ using WeatherCalendar.Services;
 
 namespace WeatherCalendar.ViewModels;
 
-public class CalendarWindowViewModel : CalendarBaseViewModel, IActivatableViewModel
+public partial class CalendarWindowViewModel : CalendarBaseViewModel
 {
-    public ViewModelActivator Activator { get; }
-
     /// <summary>
-    /// 日历
+    ///     日历
     /// </summary>
     public CalendarViewModel Calendar { get; }
 
     /// <summary>
-    /// 年
+    ///     年
     /// </summary>
     public int[] Years { get; }
 
     /// <summary>
-    /// 月
+    ///     月
     /// </summary>
     public int[] Months { get; }
 
     /// <summary>
-    /// 选中的年
+    ///     选中的年
     /// </summary>
     [Reactive]
-    public int SelectedYear { get; set; }
+    public partial int SelectedYear { get; set; }
 
     /// <summary>
-    /// 选中的月
+    ///     选中的月
     /// </summary>
     [Reactive]
-    public int SelectedMonth { get; set; }
+    public partial int SelectedMonth { get; set; }
 
     /// <summary>
-    /// 天气预报
+    ///     天气预报
     /// </summary>
-    [ObservableAsProperty]
-    public WeatherForecast Forecast { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial WeatherForecast Forecast { get; }
 
     /// <summary>
-    /// 是否置顶
+    ///     是否置顶
     /// </summary>
     [Reactive]
-    public bool IsTopmost { get; set; }
+    public partial bool IsTopmost { get; set; }
 
     public CalendarWindowViewModel()
     {
-        Activator = new ViewModelActivator();
-
         Calendar = new CalendarViewModel();
 
         GotoMonthCommand = Calendar.GotoMonthCommand;
@@ -66,44 +63,42 @@ public class CalendarWindowViewModel : CalendarBaseViewModel, IActivatableViewMo
         NextMonthCommand = Calendar.NextMonthCommand;
 
         Years = new int[199];
-        for (var i = 0; i < Years.Length; i++)
-        {
-            Years[i] = 1902 + i;
-        }
+        for (var i = 0; i < Years.Length; i++) Years[i] = 1902 + i;
 
         Months = new int[12];
-        for (var i = 0; i < Months.Length; i++)
-        {
-            Months[i] = i + 1;
-        }
+        for (var i = 0; i < Months.Length; i++) Months[i] = i + 1;
 
         SelectedYear = Calendar.CurrentMonth.Year;
         SelectedMonth = Calendar.CurrentMonth.Month;
-
-        this.Calendar
-            .WhenAnyValue(x => x.CurrentMonth)
-            .Do(date =>
-            {
-                SelectedYear = date.Year;
-                SelectedMonth = date.Month;
-            })
-            .Subscribe();
 
         this.WhenAnyValue(
                 x => x.SelectedYear,
                 x => x.SelectedMonth,
                 (year, month) => new DateTime(year, month, 1))
             .InvokeCommand(this, model => model.GotoMonthCommand);
+    }
 
-        this.WhenActivated(disposable =>
-        {
-            var weatherService = Locator.Current.GetService<WeatherService>();
+    protected override void OnWhenActivated(CompositeDisposable disposable)
+    {
+        base.OnWhenActivated(disposable);
 
+        var weatherService = Locator.Current.GetService<WeatherService>();
+
+        _forecastHelper =
             weatherService
                 .WhenAnyValue(x => x.Forecast)
-                .ObserveOnDispatcher()
-                .ToPropertyEx(this, model => model.Forecast)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, model => model.Forecast)
                 .DisposeWith(disposable);
-        });
+
+        Calendar
+            .WhenAnyValue(x => x.CurrentMonth)
+            .Do(date =>
+            {
+                SelectedYear = date.Year;
+                SelectedMonth = date.Month;
+            })
+            .Subscribe()
+            .DisposeWith(disposable);
     }
 }

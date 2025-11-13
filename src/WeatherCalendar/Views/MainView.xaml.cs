@@ -1,12 +1,13 @@
-﻿using ReactiveUI;
 using System;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
+using ReactiveUI;
 
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// MainView.xaml 的交互逻辑
+///     MainView.xaml 的交互逻辑
 /// </summary>
 public partial class MainView
 {
@@ -64,9 +65,8 @@ public partial class MainView
                     var today =
                         forecast
                             .Forecast
-                            .FirstOrDefault(
-                                f =>
-                                    f.DateTime.Date == DateTime.Today);
+                            .FirstOrDefault(f =>
+                                f.DateTime.Date == DateTime.Today);
 
                     if (today == null)
                         return forecast.RealTimeWeather.Humidity;
@@ -194,13 +194,11 @@ public partial class MainView
         var unit = units[0];
 
         for (var i = 0; i < 2; i++)
-        {
             if (speed >= 999.5)
             {
                 speed /= 1024d;
                 unit = units[i + 1];
             }
-        }
 
         return $"{GetValue(speed)} {unit}";
     }

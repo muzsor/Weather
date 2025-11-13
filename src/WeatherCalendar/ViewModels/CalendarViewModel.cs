@@ -1,10 +1,11 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using Splat;
 using System;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using Splat;
 using Weather;
 using WeatherCalendar.Services;
 
@@ -12,42 +13,35 @@ using WeatherCalendar.Services;
 
 namespace WeatherCalendar.ViewModels;
 
-public class CalendarViewModel : CalendarBaseViewModel, IActivatableViewModel
+public partial class CalendarViewModel : CalendarBaseViewModel
 {
-    public ViewModelActivator Activator { get; }
-
     /// <summary>
-    /// 当前月的天
+    ///     当前月的天
     /// </summary>
     public DayViewModel[] Days { get; }
 
     /// <summary>
-    /// 当前月日期（某月1号）
+    ///     当前月日期（某月1号）
     /// </summary>
     [Reactive]
-    public DateTime CurrentMonth { get; set; }
+    public partial DateTime CurrentMonth { get; set; }
 
     /// <summary>
-    /// 当前月行数
+    ///     当前月行数
     /// </summary>
     [Reactive]
-    public int CurrentMonthRows { get; set; }
+    public partial int CurrentMonthRows { get; set; }
 
     /// <summary>
-    /// 天气预报
+    ///     天气预报
     /// </summary>
-    [ObservableAsProperty]
-    public WeatherForecast Forecast { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial WeatherForecast Forecast { get; }
 
     public CalendarViewModel()
     {
-        Activator = new ViewModelActivator();
-
         var days = new DayViewModel[7 * 6];
-        for (var i = 0; i < days.Length; i++)
-        {
-            days[i] = new DayViewModel();
-        }
+        for (var i = 0; i < days.Length; i++) days[i] = new DayViewModel();
         Days = days;
 
         CurrentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
@@ -57,41 +51,38 @@ public class CalendarViewModel : CalendarBaseViewModel, IActivatableViewModel
             CurrentMonth = new DateTime(month.Year, month.Month, 1);
         });
 
-        NextMonthCommand = ReactiveCommand.Create(() =>
-        {
-            CurrentMonth = CurrentMonth.AddMonths(1);
-        });
+        NextMonthCommand = ReactiveCommand.Create(() => { CurrentMonth = CurrentMonth.AddMonths(1); });
 
-        LastMonthCommand = ReactiveCommand.Create(() =>
-        {
-            CurrentMonth = CurrentMonth.AddMonths(-1);
-        });
+        LastMonthCommand = ReactiveCommand.Create(() => { CurrentMonth = CurrentMonth.AddMonths(-1); });
 
         CurrentMonthCommand = ReactiveCommand.Create(() =>
         {
             CurrentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
         });
+    }
 
-        this.WhenActivated(disposable =>
-        {
-            this.WhenAnyValue(x => x.CurrentMonth)
-                .Do(UpdateDate)
-                .Subscribe()
-                .DisposeWith(disposable);
+    protected override void OnWhenActivated(CompositeDisposable disposable)
+    {
+        base.OnWhenActivated(disposable);
 
-            var weatherService = Locator.Current.GetService<WeatherService>();
+        this.WhenAnyValue(x => x.CurrentMonth)
+            .Do(UpdateDate)
+            .Subscribe()
+            .DisposeWith(disposable);
 
+        var weatherService = Locator.Current.GetService<WeatherService>();
+
+        _forecastHelper =
             weatherService
                 .WhenAnyValue(x => x.Forecast)
-                .ObserveOnDispatcher()
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Do(UpdateForecast)
-                .ToPropertyEx(this, model => model.Forecast)
+                .ToProperty(this, model => model.Forecast)
                 .DisposeWith(disposable);
-        });
     }
 
     /// <summary>
-    /// 更新天气
+    ///     更新天气
     /// </summary>
     /// <param name="weatherForecast"></param>
     private void UpdateForecast(WeatherForecast weatherForecast)
@@ -130,7 +121,7 @@ public class CalendarViewModel : CalendarBaseViewModel, IActivatableViewModel
     }
 
     /// <summary>
-    /// 更新日历日期
+    ///     更新日历日期
     /// </summary>
     /// <param name="date"></param>
     private void UpdateDate(DateTime date)
@@ -163,10 +154,7 @@ public class CalendarViewModel : CalendarBaseViewModel, IActivatableViewModel
             Days[i].IsValid = true;
         }
 
-        for (var i = 7 * rows; i < Days.Length; i++)
-        {
-            Days[i].IsValid = false;
-        }
+        for (var i = 7 * rows; i < Days.Length; i++) Days[i].IsValid = false;
 
         UpdateForecast(Forecast);
     }

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,7 +13,7 @@ using WeatherCalendar.Themes;
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// DayView.xaml 的交互逻辑
+///     DayView.xaml 的交互逻辑
 /// </summary>
 public partial class DayView
 {
@@ -166,15 +167,11 @@ public partial class DayView
                         return theme.FestivalAnotherMonthForeground;
 
                     if (isWeekend)
-                    {
-                        return isChineseFestival ?
-                            theme.ChineseFestivalWeekendForeground :
-                            theme.FestivalWeekendForeground;
-                    }
+                        return isChineseFestival
+                            ? theme.ChineseFestivalWeekendForeground
+                            : theme.FestivalWeekendForeground;
 
-                    return isChineseFestival ?
-                        theme.ChineseFestivalNormalForeground :
-                        theme.FestivalNormalForeground;
+                    return isChineseFestival ? theme.ChineseFestivalNormalForeground : theme.FestivalNormalForeground;
                 })
             .BindTo(this, view => view.FestivalTextBlock.Foreground)
             .DisposeWith(disposable);
@@ -362,7 +359,7 @@ public partial class DayView
                 name => string.IsNullOrWhiteSpace(name) ? Visibility.Collapsed : Visibility.Visible)
             .DisposeWith(disposable);
 
-        this.Border
+        Border
             .Events()
             .ContextMenuOpening
             .Do(x => x.Handled = ViewModel!.IsEditing)
@@ -408,7 +405,8 @@ public partial class DayView
         string stemsAndBranchesMonthName,
         string stemsAndBranchesDayName)
     {
-        return $"{stemsAndBranchesYearNameOfFirstMonth}{chineseZodiacOfFirstMonth}年 {stemsAndBranchesMonthName}月 {stemsAndBranchesDayName}日";
+        return
+            $"{stemsAndBranchesYearNameOfFirstMonth}{chineseZodiacOfFirstMonth}年 {stemsAndBranchesMonthName}月 {stemsAndBranchesDayName}日";
     }
 
     private static string GetDateInfo(DateTime date, string lunarMonthInfo)

@@ -1,20 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace WeatherCalendar.Models;
 
 /// <summary>
-/// 假期
+///     假期
 /// </summary>
 public class Holiday
 {
     /// <summary>
-    /// 年
+    ///     年
     /// </summary>
     public int Year { get; set; }
 
     /// <summary>
-    /// 名称
+    ///     名称
     /// </summary>
     public string Name { get; set; }
 

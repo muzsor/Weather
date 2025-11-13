@@ -1,12 +1,13 @@
-﻿using ReactiveUI;
-using Splat;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
+using ReactiveUI;
+using Splat;
 using WeatherCalendar.Themes;
 
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// WeatherFontView.xaml 的交互逻辑
+///     WeatherFontView.xaml 的交互逻辑
 /// </summary>
 public partial class WeatherFontView
 {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RestSharp;
@@ -79,22 +79,6 @@ public sealed class HolidayFileService : IHolidayService
             h.Year == date.Year &&
             ((h.RestDates?.Contains(date.Date) ?? false) ||
              (h.WorkDates?.Contains(date.Date) ?? false)));
-    }
-
-    private void Save()
-    {
-        try
-        {
-            if (Holidays == null)
-                return;
-
-            var json = JsonHelper.SerializeObjectToFormatJson(Holidays, "yyyy-MM-dd");
-            System.IO.File.WriteAllText(File, json);
-        }
-        catch
-        {
-            //
-        }
     }
 
     public void Add(int year, string name, DateTime date, bool isRestDay)
@@ -238,5 +222,21 @@ public sealed class HolidayFileService : IHolidayService
             Holidays = Holidays.Where(h => h != holiday).ToArray();
 
         Save();
+    }
+
+    private void Save()
+    {
+        try
+        {
+            if (Holidays == null)
+                return;
+
+            var json = JsonHelper.SerializeObjectToFormatJson(Holidays, "yyyy-MM-dd");
+            System.IO.File.WriteAllText(File, json);
+        }
+        catch
+        {
+            //
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using ReactiveUI;
+using ReactiveUI;
 using WeatherCalendar.ViewModels;
 
 namespace WeatherCalendar.Services;

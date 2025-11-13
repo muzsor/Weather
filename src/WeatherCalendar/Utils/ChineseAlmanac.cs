@@ -1,13 +1,17 @@
-﻿using System;
+using System;
 
 namespace WeatherCalendar.Utils;
 
 /// <summary>
-/// 数九三伏计算
+///     数九三伏计算
 /// </summary>
 public static class ChineseAlmanac
 {
-    private static readonly int[] JqData = { 0, 21208, 43467, 63836, 85337, 107014, 128867, 150921, 173149, 195551, 218072, 240693, 263343, 285989, 308563, 331033, 353350, 375494, 397447, 419210, 440795, 462224, 483532, 504758 };
+    private static readonly int[] JqData =
+    {
+        0, 21208, 43467, 63836, 85337, 107014, 128867, 150921, 173149, 195551, 218072, 240693, 263343, 285989, 308563,
+        331033, 353350, 375494, 397447, 419210, 440795, 462224, 483532, 504758
+    };
 
     public static string GetShuJiuInfo(DateTime dt)
     {
@@ -120,20 +124,14 @@ public static class ChineseAlmanac
         if (dt.Date <= chuFu.Date)
             return "";
 
-        if (dt.Date < zhongFu.Date)
-        {
-            return $"初伏 第{(dt.Date - chuFu.Date).Days + 1}天";
-        }
-        if (dt.Date < moFu.Date)
-        {
-            return $"中伏 第{(dt.Date - zhongFu.Date).Days + 1}天";
-        }
+        if (dt.Date < zhongFu.Date) return $"初伏 第{(dt.Date - chuFu.Date).Days + 1}天";
+        if (dt.Date < moFu.Date) return $"中伏 第{(dt.Date - zhongFu.Date).Days + 1}天";
 
         return (dt.Date - moFu.Date).Days < 10 ? $"末伏 第{(dt.Date - moFu.Date).Days + 1}天" : "";
     }
 
     /// <summary>
-    /// 三伏数九
+    ///     三伏数九
     /// </summary>
     /// <param name="dt"></param>
     /// <returns></returns>

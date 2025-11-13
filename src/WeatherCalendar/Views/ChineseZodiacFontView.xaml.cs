@@ -1,10 +1,11 @@
-﻿using ReactiveUI;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
+using ReactiveUI;
 
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// ChineseZodiacFontView.xaml 的交互逻辑
+///     ChineseZodiacFontView.xaml 的交互逻辑
 /// </summary>
 public partial class ChineseZodiacFontView
 {

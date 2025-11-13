@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SharpSxwnl/SharpSxwnl.csproj" />
+  <Project Path="Weather/Weather.csproj" />
+  <Project Path="WeatherCalendar/WeatherCalendar.csproj" />
+</Solution>

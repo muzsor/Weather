@@ -1,8 +1,10 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using Splat;
 using System;
+using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using Splat;
 using Weather;
 using WeatherCalendar.Models;
 using WeatherCalendar.Services;
@@ -11,101 +13,101 @@ using WeatherCalendar.Services;
 
 namespace WeatherCalendar.ViewModels;
 
-public class MainViewModel : CalendarBaseViewModel
+public partial class MainViewModel : CalendarBaseViewModel
 {
     /// <summary>
-    /// 日历
+    ///     日历
     /// </summary>
     public CalendarViewModel Calendar { get; }
 
     /// <summary>
-    /// 上下班倒计时
+    ///     上下班倒计时
     /// </summary>
     public WorkTimerViewModel WorkTimer { get; }
 
     /// <summary>
-    /// 当前时间
+    ///     当前时间
     /// </summary>
-    [ObservableAsProperty]
-    public DateTime CurrentDateTime { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial DateTime CurrentDateTime { get; }
 
     /// <summary>
-    /// 干支年名称（正月）
+    ///     干支年名称（正月）
     /// </summary>
-    [ObservableAsProperty]
-    public string StemsAndBranchesYearNameOfFirstMonth { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string StemsAndBranchesYearNameOfFirstMonth { get; }
 
     /// <summary>
-    /// 干支年名称（立春）
+    ///     干支年名称（立春）
     /// </summary>
-    [ObservableAsProperty]
-    public string StemsAndBranchesYearNameOfSpringBegins { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string StemsAndBranchesYearNameOfSpringBegins { get; }
 
     /// <summary>
-    /// 生肖（正月）
+    ///     生肖（正月）
     /// </summary>
-    [ObservableAsProperty]
-    public string ChineseZodiacOfFirstMonth { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string ChineseZodiacOfFirstMonth { get; }
 
     /// <summary>
-    /// 生肖（立春）
+    ///     生肖（立春）
     /// </summary>
-    [ObservableAsProperty]
-    public string ChineseZodiacOfSpringBegins { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string ChineseZodiacOfSpringBegins { get; }
 
     /// <summary>
-    /// 干支月
+    ///     干支月
     /// </summary>
-    [ObservableAsProperty]
-    public string StemsAndBranchesMonthName { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string StemsAndBranchesMonthName { get; }
 
     /// <summary>
-    /// 干支日
+    ///     干支日
     /// </summary>
-    [ObservableAsProperty]
-    public string StemsAndBranchesDayName { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string StemsAndBranchesDayName { get; }
 
     /// <summary>
-    /// 农历月信息
+    ///     农历月信息
     /// </summary>
-    [ObservableAsProperty]
-    public string LunarMonthInfo { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial string LunarMonthInfo { get; }
 
     /// <summary>
-    /// 天气预报
+    ///     天气预报
     /// </summary>
-    [ObservableAsProperty]
-    public WeatherForecast Forecast { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial WeatherForecast Forecast { get; }
 
     /// <summary>
-    /// 天气图片视图模型
+    ///     天气图片视图模型
     /// </summary>
-    [ObservableAsProperty]
-    public ReactiveObject WeatherImageViewModel { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial ReactiveObject WeatherImageViewModel { get; }
 
     /// <summary>
-    /// 网络信息
+    ///     网络信息
     /// </summary>
-    [ObservableAsProperty]
-    public NetWorkInfo NetWorkInfo { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial NetWorkInfo NetWorkInfo { get; }
 
     /// <summary>
-    /// CPU使用率
+    ///     CPU使用率
     /// </summary>
-    [ObservableAsProperty]
-    public float CpuLoad { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial float CpuLoad { get; }
 
     /// <summary>
-    /// 内存使用率
+    ///     内存使用率
     /// </summary>
-    [ObservableAsProperty]
-    public float MemoryLoad { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial float MemoryLoad { get; }
 
     /// <summary>
-    /// 生肖视图模型
+    ///     生肖视图模型
     /// </summary>
-    [ObservableAsProperty]
-    public ReactiveObject ChineseZodiacViewModel { get; }
+    [ObservableAsProperty(ReadOnly = false)]
+    public partial ReactiveObject ChineseZodiacViewModel { get; }
 
     public MainViewModel()
     {
@@ -116,84 +118,118 @@ public class MainViewModel : CalendarBaseViewModel
         CurrentMonthCommand = Calendar.CurrentMonthCommand;
         LastMonthCommand = Calendar.LastMonthCommand;
         NextMonthCommand = Calendar.NextMonthCommand;
+    }
+
+    protected override void OnWhenActivated(CompositeDisposable disposable)
+    {
+        base.OnWhenActivated(disposable);
 
         var appService = Locator.Current.GetService<AppService>();
 
-        appService
-            .TimerPerSecond
-            .ObserveOnDispatcher()
-            .ToPropertyEx(this, model => model.CurrentDateTime);
+        _currentDateTimeHelper =
+            appService
+                .TimerPerSecond
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, model => model.CurrentDateTime)
+                .DisposeWith(disposable);
 
         var calendarService = Locator.Current.GetService<CalendarService>();
 
-        this.WhenAnyValue(x => x.CurrentDateTime)
-            .Select(calendarService.GetStemsAndBranchesYearNameOfFirstMonth)
-            .ToPropertyEx(this, model => model.StemsAndBranchesYearNameOfFirstMonth);
+        _stemsAndBranchesYearNameOfFirstMonthHelper =
+            this.WhenAnyValue(x => x.CurrentDateTime)
+                .Select(calendarService.GetStemsAndBranchesYearNameOfFirstMonth)
+                .ToProperty(this, model => model.StemsAndBranchesYearNameOfFirstMonth)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.CurrentDateTime)
-            .Select(calendarService.GetStemsAndBranchesYearNameOfSpringBegins)
-            .ToPropertyEx(this, model => model.StemsAndBranchesYearNameOfSpringBegins);
+        _stemsAndBranchesYearNameOfSpringBeginsHelper =
+            this.WhenAnyValue(x => x.CurrentDateTime)
+                .Select(calendarService.GetStemsAndBranchesYearNameOfSpringBegins)
+                .ToProperty(this, model => model.StemsAndBranchesYearNameOfSpringBegins)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.CurrentDateTime)
-            .Select(calendarService.GetChineseZodiacOfFirstMonth)
-            .ToPropertyEx(this, model => model.ChineseZodiacOfFirstMonth);
+        _chineseZodiacOfFirstMonthHelper =
+            this.WhenAnyValue(x => x.CurrentDateTime)
+                .Select(calendarService.GetChineseZodiacOfFirstMonth)
+                .ToProperty(this, model => model.ChineseZodiacOfFirstMonth)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.CurrentDateTime)
-            .Select(calendarService.GetChineseZodiacOfSpringBegins)
-            .ToPropertyEx(this, model => model.ChineseZodiacOfSpringBegins);
+        _chineseZodiacOfSpringBeginsHelper =
+            this.WhenAnyValue(x => x.CurrentDateTime)
+                .Select(calendarService.GetChineseZodiacOfSpringBegins)
+                .ToProperty(this, model => model.ChineseZodiacOfSpringBegins)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.CurrentDateTime)
-            .Select(calendarService.GetStemsAndBranchesMonthName)
-            .ToPropertyEx(this, model => model.StemsAndBranchesMonthName);
+        _stemsAndBranchesMonthNameHelper =
+            this.WhenAnyValue(x => x.CurrentDateTime)
+                .Select(calendarService.GetStemsAndBranchesMonthName)
+                .ToProperty(this, model => model.StemsAndBranchesMonthName)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.CurrentDateTime)
-            .Select(calendarService.GetStemsAndBranchesDayName)
-            .ToPropertyEx(this, model => model.StemsAndBranchesDayName);
+        _stemsAndBranchesDayNameHelper =
+            this.WhenAnyValue(x => x.CurrentDateTime)
+                .Select(calendarService.GetStemsAndBranchesDayName)
+                .ToProperty(this, model => model.StemsAndBranchesDayName)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.CurrentDateTime)
-            .Select(calendarService.GetLunarMonthInfo)
-            .ToPropertyEx(this, model => model.LunarMonthInfo);
+        _lunarMonthInfoHelper =
+            this.WhenAnyValue(x => x.CurrentDateTime)
+                .Select(calendarService.GetLunarMonthInfo)
+                .ToProperty(this, model => model.LunarMonthInfo)
+                .DisposeWith(disposable);
 
         var chineseZodiacService = Locator.Current.GetService<IChineseZodiacService>();
 
-        this.WhenAnyValue(x => x.ChineseZodiacOfFirstMonth)
-            .Select(chineseZodiacService.GetChineseZodiacViewModel)
-            .ToPropertyEx(this, model => model.ChineseZodiacViewModel);
+        _chineseZodiacViewModelHelper =
+            this.WhenAnyValue(x => x.ChineseZodiacOfFirstMonth)
+                .Select(chineseZodiacService.GetChineseZodiacViewModel)
+                .ToProperty(this, model => model.ChineseZodiacViewModel)
+                .DisposeWith(disposable);
 
         var weatherService = Locator.Current.GetService<WeatherService>();
 
-        weatherService
-            .WhenAnyValue(x => x.Forecast)
-            .ObserveOnDispatcher()
-            .ToPropertyEx(this, model => model.Forecast);
+        _forecastHelper =
+            weatherService
+                .WhenAnyValue(x => x.Forecast)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, model => model.Forecast)
+                .DisposeWith(disposable);
 
-        this.WhenAnyValue(x => x.Forecast)
-            .Select(w => w?.GetCurrentWeather())
-            .Select(w =>
-            {
-                if (w == null)
-                    return null;
+        _weatherImageViewModelHelper =
+            this.WhenAnyValue(x => x.Forecast)
+                .Select(w => w?.GetCurrentWeather())
+                .Select(w =>
+                {
+                    if (w == null)
+                        return null;
 
-                var (weather, isNight) = w.Value;
-                if (weather == null)
-                    return null;
+                    var (weather, isNight) = w.Value;
+                    if (weather == null)
+                        return null;
 
-                return Locator.Current.GetService<IWeatherImageService>()?.GetWeatherImageViewModel(weather.Weather, isNight);
-            })
-            .ToPropertyEx(this, model => model.WeatherImageViewModel);
+                    return Locator.Current.GetService<IWeatherImageService>()
+                        ?.GetWeatherImageViewModel(weather.Weather, isNight);
+                })
+                .ToProperty(this, model => model.WeatherImageViewModel)
+                .DisposeWith(disposable);
 
         var systemInfoService = Locator.Current.GetService<SystemInfoService>();
 
-        systemInfoService
-            .WhenAnyValue(x => x.NetWorkInfo)
-            .ToPropertyEx(this, model => model.NetWorkInfo, false, RxApp.MainThreadScheduler);
+        _netWorkInfoHelper =
+            systemInfoService
+                .WhenAnyValue(x => x.NetWorkInfo)
+                .ToProperty(this, model => model.NetWorkInfo, false, RxApp.MainThreadScheduler)
+                .DisposeWith(disposable);
 
-        systemInfoService
-            .WhenAnyValue(x => x.CpuLoad)
-            .ToPropertyEx(this, model => model.CpuLoad, false, RxApp.MainThreadScheduler);
+        _cpuLoadHelper =
+            systemInfoService
+                .WhenAnyValue(x => x.CpuLoad)
+                .ToProperty(this, model => model.CpuLoad, false, RxApp.MainThreadScheduler)
+                .DisposeWith(disposable);
 
-        systemInfoService
-            .WhenAnyValue(x => x.MemoryLoad)
-            .ToPropertyEx(this, model => model.MemoryLoad, false, RxApp.MainThreadScheduler);
+        _memoryLoadHelper =
+            systemInfoService
+                .WhenAnyValue(x => x.MemoryLoad)
+                .ToProperty(this, model => model.MemoryLoad, false, RxApp.MainThreadScheduler)
+                .DisposeWith(disposable);
     }
 }

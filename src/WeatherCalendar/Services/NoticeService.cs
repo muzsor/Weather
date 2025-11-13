@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using WeatherCalendar.Models;
 using WeatherCalendar.Utils;
 
@@ -9,11 +9,6 @@ public class NoticeService
     private string File { get; set; }
 
     public Notice[] Notices { get; private set; }
-
-    public NoticeService()
-    {
-
-    }
 
     public Notice[] Load(string file)
     {

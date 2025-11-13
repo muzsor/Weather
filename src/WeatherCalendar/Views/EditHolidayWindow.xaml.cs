@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows;
 using ReactiveMarbles.ObservableEvents;
@@ -10,7 +11,7 @@ using WeatherCalendar.ViewModels;
 namespace WeatherCalendar.Views;
 
 /// <summary>
-/// EditHolidayWindow.xaml 的交互逻辑
+///     EditHolidayWindow.xaml 的交互逻辑
 /// </summary>
 public partial class EditHolidayWindow
 {
@@ -50,28 +51,28 @@ public partial class EditHolidayWindow
                 view => view.OkButton)
             .DisposeWith(disposable);
 
-        this.TitleBorder
+        TitleBorder
             .Events()
             .MouseLeftButtonDown
             .Do(_ => DragMove())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.CloseButton
+        CloseButton
             .Events()
             .Click
             .Do(_ => Close())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.CancelButton
+        CancelButton
             .Events()
             .Click
             .Do(_ => Close())
             .Subscribe()
             .DisposeWith(disposable);
 
-        this.ViewModel!
+        ViewModel!
             .ConfirmedInteraction
             .RegisterHandler(interaction =>
             {

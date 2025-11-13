@@ -1,4 +1,4 @@
-﻿using WeatherCalendar.Models;
+using WeatherCalendar.Models;
 using WeatherCalendar.Utils;
 
 namespace WeatherCalendar.Services;
@@ -19,7 +19,7 @@ public class AppConfigService
         {
             Config = new AppConfig
             {
-                CityKey = "101020600", // 浦东
+                CityKey = "101020600" // 浦东
             };
         }
 

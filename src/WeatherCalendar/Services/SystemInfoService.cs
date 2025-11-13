@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Reactive.Linq;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 using Splat;
 using WeatherCalendar.Models;
 
@@ -13,39 +13,39 @@ using WeatherCalendar.Models;
 
 namespace WeatherCalendar.Services;
 
-public class SystemInfoService : ReactiveObject
+public partial class SystemInfoService : ReactiveBase
 {
-    /// <summary>
-    /// CPU 使用率
-    /// </summary>
-    [ObservableAsProperty]
-    public float CpuLoad { get; }
+    private static readonly PerformanceCounter CpuLoadCounter = new("Processor", "% Processor Time", "_Total");
 
     /// <summary>
-    /// 物理内存
+    ///     CPU 使用率
+    /// </summary>
+    [ObservableAsProperty]
+    public partial float CpuLoad { get; }
+
+    /// <summary>
+    ///     物理内存
     /// </summary>
     [Reactive]
-    public long PhysicalMemory { get; set; }
+    public partial long PhysicalMemory { get; set; }
 
     /// <summary>
-    /// 可用内存
+    ///     可用内存
     /// </summary>
     [ObservableAsProperty]
-    public long AvailableMemory { get; }
+    public partial long AvailableMemory { get; }
 
     /// <summary>
-    /// 内存使用率
+    ///     内存使用率
     /// </summary>
     [ObservableAsProperty]
-    public float MemoryLoad { get; }
+    public partial float MemoryLoad { get; }
 
     /// <summary>
-    /// 网络速度
+    ///     网络速度
     /// </summary>
     [ObservableAsProperty]
-    public NetWorkInfo NetWorkInfo { get; }
-
-    private static readonly PerformanceCounter CpuLoadCounter = new("Processor", "% Processor Time", "_Total");
+    public partial NetWorkInfo NetWorkInfo { get; }
 
     private static IEnumerable<NetworkInterface> NetworkInterfaces =>
         NetworkInterface.GetAllNetworkInterfaces()
@@ -64,48 +64,46 @@ public class SystemInfoService : ReactiveObject
         var mc = new ManagementClass("Win32_ComputerSystem");
         var moc = mc.GetInstances();
         foreach (var mo in moc)
-        {
             if (mo["TotalPhysicalMemory"] != null)
-            {
                 PhysicalMemory = long.Parse(mo["TotalPhysicalMemory"].ToString()!);
-            }
-        }
 
-        appService
-            .TimerPerSecond
-            .Select(_ => Update())
-            .ToPropertyEx(this, monitor => monitor.NetWorkInfo);
+        _netWorkInfoHelper =
+            appService
+                .TimerPerSecond
+                .Select(_ => Update())
+                .ToProperty(this, monitor => monitor.NetWorkInfo);
 
-        appService
-            .TimerPerSecond
-            .Select(_ => CpuLoadCounter.NextValue())
-            .ToPropertyEx(this, service => service.CpuLoad);
+        _cpuLoadHelper =
+            appService
+                .TimerPerSecond
+                .Select(_ => CpuLoadCounter.NextValue())
+                .ToProperty(this, service => service.CpuLoad);
 
-        appService
-            .TimerPerSecond
-            .Select(_ =>
-            {
-                long availableBytes = 0;
-                try
+        _availableMemoryHelper =
+            appService
+                .TimerPerSecond
+                .Select(_ =>
                 {
-                    var mos = new ManagementClass("Win32_OperatingSystem");
-                    foreach (var mo in mos.GetInstances())
+                    long availableBytes = 0;
+                    try
                     {
-                        availableBytes = 1024 * long.Parse(mo["FreePhysicalMemory"]!.ToString() ?? "0");
+                        var mos = new ManagementClass("Win32_OperatingSystem");
+                        foreach (var mo in mos.GetInstances())
+                            availableBytes = 1024 * long.Parse(mo["FreePhysicalMemory"]!.ToString() ?? "0");
                     }
-                }
-                catch
-                {
-                    //
-                }
+                    catch
+                    {
+                        //
+                    }
 
-                return availableBytes;
-            })
-            .ToPropertyEx(this, service => service.AvailableMemory);
+                    return availableBytes;
+                })
+                .ToProperty(this, service => service.AvailableMemory);
 
-        this.WhenAnyValue(x => x.AvailableMemory)
-            .Select(available => (PhysicalMemory - available) / (float)PhysicalMemory * 100)
-            .ToPropertyEx(this, service => service.MemoryLoad);
+        _memoryLoadHelper =
+            this.WhenAnyValue(x => x.AvailableMemory)
+                .Select(available => (PhysicalMemory - available) / (float)PhysicalMemory * 100)
+                .ToProperty(this, service => service.MemoryLoad);
     }
 
     private NetWorkInfo Update()

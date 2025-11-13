@@ -1,10 +1,9 @@
-﻿using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace WeatherCalendar.ViewModels;
 
-public class WeatherImageViewModel : ReactiveObject
+public partial class WeatherImageViewModel : ReactiveBase
 {
     [Reactive]
-    public string ImageFile { get; set; }
+    public partial string ImageFile { get; set; }
 }
