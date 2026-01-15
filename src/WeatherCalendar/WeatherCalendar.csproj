@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+        <TargetFramework>net10.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>Icon.ico</ApplicationIcon>
         <Copyright>Copyright © 2021-2025 YJammak All rights reserved.</Copyright>
-        <AssemblyVersion>0.4.6.0</AssemblyVersion>
-        <FileVersion>0.4.6.0</FileVersion>
-        <Version>0.4.6.0</Version>
+        <AssemblyVersion>0.4.6.1</AssemblyVersion>
+        <FileVersion>0.4.6.1</FileVersion>
+        <Version>0.4.6.1</Version>
         <Authors>YJammak</Authors>
         <Product>天气日历</Product>
         <PackageProjectUrl>https://github.com/YJammak/Weather</PackageProjectUrl>
@@ -36,6 +36,7 @@
         </PackageReference>
         <PackageReference Include="ReactiveUI.Validation" />
         <PackageReference Include="ReactiveUI.WPF" />
+        <PackageReference Include="Splat" />
         <PackageReference Include="Splat.NLog" />
         <PackageReference Include="System.Management" />
         <PackageReference Include="System.Reactive.Linq" />
