@@ -8,6 +8,7 @@ using System.Windows;
 using ReactiveMarbles.ObservableEvents;
 using ReactiveUI;
 using Splat;
+using WeatherCalendar.Services;
 using WeatherCalendar.Themes;
 
 namespace WeatherCalendar.Views;
@@ -199,6 +200,14 @@ public partial class DayView
                 model => model.Date.Date,
                 view => view.DaysTextBlock.Text,
                 dateInfo => GetDaysFromTodayInfo(dateInfo.Date))
+            .DisposeWith(disposable);
+
+        var appService = Locator.Current.GetService<AppService>();
+        appService
+            .TimerPerDay
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Do(_ => DaysTextBlock.Text = GetDaysFromTodayInfo(ViewModel!.Date.Date))
+            .Subscribe()
             .DisposeWith(disposable);
 
         this.WhenAnyValue(
